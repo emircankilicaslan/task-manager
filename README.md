@@ -1,10 +1,22 @@
-# Task Manager — Laravel + Next.js
+# Task Manager
 
-Görev yönetim uygulaması. Laravel 11 REST API + Next.js 14 App Router ile geliştirilmiştir.
+A full-stack task management app: a **Laravel 11** REST API with token authentication and a **Next.js 14** (App Router) frontend.
+
+<!-- Add a screenshot or GIF here, for example: ![Task Manager](docs/screenshot.png) -->
 
 ---
 
-## Teknoloji Stack
+## Features
+
+- Register, log in and log out with token-based authentication (Laravel Sanctum)
+- Create, view, edit and delete tasks; update only the status through a dedicated endpoint
+- Filter tasks by status and priority, search by title (debounced) and browse a paginated list
+- Authorization through policies and recoverable deletes (soft deletes)
+- Protected routes on the frontend and a central redirect to the login page on `401` responses
+
+---
+
+## Tech Stack
 
 **Backend**
 - PHP 8.2 / Laravel 11
@@ -21,121 +33,116 @@ Görev yönetim uygulaması. Laravel 11 REST API + Next.js 14 App Router ile gel
 
 ---
 
-## Kurulum
+## Getting Started
 
-### Gereksinimler
+### Prerequisites
 
-- PHP >= 8.2 + Composer
-- Node.js >= 18 + npm
+- PHP >= 8.2 and Composer
+- Node.js >= 18 and npm
 - MySQL
-
----
 
 ### Backend (Laravel)
 
 ```bash
 cd backend
 
-# Bağımlılıkları yükle
+# Install dependencies
 composer install
 
-# .env dosyasını oluştur
+# Create the environment file
 cp .env.example .env
 php artisan key:generate
 
-# Veritabanı bilgilerini .env'de güncelle:
+# Update the database settings in .env:
 # DB_DATABASE=task_manager
 # DB_USERNAME=root
 # DB_PASSWORD=
 
-# Veritabanını oluştur ve migration çalıştır
+# Create the database, then run the migrations
 php artisan migrate
 
-# (Opsiyonel) Demo verisi yükle
+# (Optional) Load demo data
 php artisan db:seed
 
-# CORS için config/sanctum.php içindeki stateful domains kontrol et
-# Sunucuyu başlat
+# Check the stateful domains in config/sanctum.php for CORS, then start the server
 php artisan serve
 ```
 
-API `http://localhost:8000` adresinde çalışır.
-Demo kullanıcı: `demo@example.com` / `password`
-
----
+The API runs at `http://localhost:8000`.
+Demo account (after seeding): `demo@example.com` / `password`
 
 ### Frontend (Next.js)
 
 ```bash
 cd frontend
 
-# Bağımlılıkları yükle
+# Install dependencies
 npm install
 
-# .env dosyasını oluştur
+# Create the environment file
 cp .env.example .env.local
 
-# Geliştirme sunucusunu başlat
+# Start the development server
 npm run dev
 ```
 
-Uygulama `http://localhost:3000` adresinde çalışır.
+The app runs at `http://localhost:3000`.
 
 ---
 
-## API Endpointleri
+## API Reference
 
 ### Auth
 
-| Method | Endpoint | Açıklama |
-|--------|----------|----------|
-| POST | `/api/auth/register` | Kayıt |
-| POST | `/api/auth/login` | Giriş |
-| POST | `/api/auth/logout` | Çıkış (auth gerekli) |
-| GET | `/api/auth/me` | Aktif kullanıcı (auth gerekli) |
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/auth/register` | Register |
+| POST | `/api/auth/login` | Log in |
+| POST | `/api/auth/logout` | Log out (auth required) |
+| GET | `/api/auth/me` | Current user (auth required) |
 
-### Tasks (auth gerekli)
+### Tasks (auth required)
 
-| Method | Endpoint | Açıklama |
-|--------|----------|----------|
-| GET | `/api/tasks` | Görev listesi (filtreli, sayfalı) |
-| POST | `/api/tasks` | Yeni görev oluştur |
-| GET | `/api/tasks/{id}` | Görev detayı |
-| PUT | `/api/tasks/{id}` | Görev güncelle |
-| DELETE | `/api/tasks/{id}` | Görev sil |
-| PATCH | `/api/tasks/{id}/status` | Sadece status güncelle |
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/tasks` | List tasks (filterable, paginated) |
+| POST | `/api/tasks` | Create a task |
+| GET | `/api/tasks/{id}` | Task details |
+| PUT | `/api/tasks/{id}` | Update a task |
+| DELETE | `/api/tasks/{id}` | Delete a task |
+| PATCH | `/api/tasks/{id}/status` | Update the status only |
 
-**Query parametreleri (GET /api/tasks):**
+**Query parameters (`GET /api/tasks`):**
 
-| Parametre | Değerler | Açıklama |
-|-----------|----------|----------|
-| `status` | `todo`, `in_progress`, `done` | Durum filtresi |
-| `priority` | `low`, `medium`, `high` | Öncelik filtresi |
-| `search` | string | Başlıkta arama |
-| `page` | integer | Sayfa numarası |
+| Parameter | Values | Description |
+|-----------|--------|-------------|
+| `status` | `todo`, `in_progress`, `done` | Filter by status |
+| `priority` | `low`, `medium`, `high` | Filter by priority |
+| `search` | string | Search in the title |
+| `page` | integer | Page number |
 
 ---
 
-## Mimari Kararlar
+## Architecture Decisions
 
 **Backend**
-- **Form Requests** — Controller'ları temiz tutar, validation mantığı ayrı katmanda
-- **API Resources** — Response formatı merkezi olarak kontrol edilir, model değişimlerinden izole
-- **Policies** — Authorization mantığı controller dışında, her resource için ayrı policy
-- **Scope Filter** — Model'da query builder pattern, tekrar kullanılabilir filtreleme
-- **SoftDeletes** — Veri kaybı olmadan silme, recovery imkânı
+- **Form Requests:** keep controllers thin; validation lives in its own layer.
+- **API Resources:** the response format is controlled in one place and isolated from model changes.
+- **Policies:** authorization logic stays outside the controllers, with a separate policy per resource.
+- **Query scope filtering:** the model exposes a reusable query-builder filter instead of repeating conditions.
+- **SoftDeletes:** records are deleted without data loss and can be recovered.
 
 **Frontend**
-- **React Query** — Server state cache yönetimi, otomatik refetch, optimistic UI
-- **React Hook Form** — Controlled form yerine uncontrolled + validation, performanslı
-- **Custom Hooks** — `useTasks`, `useAuth` ile API mantığı component'lardan ayrılmış
-- **Axios Interceptors** — Token ekleme ve 401 redirect merkezi yerde yönetilir
-- **Debounced Search** — Her tuşa API isteği atmak yerine 400ms bekleme
-- **TypeScript** — Tüm API response tipleri tanımlı, tip güvenliği
+- **React Query:** server-state caching and automatic refetching.
+- **React Hook Form:** uncontrolled inputs with validation, for better form performance.
+- **Custom hooks:** `useTasks` and `useAuth` keep API logic out of the components.
+- **Axios interceptors:** token attachment and the `401` redirect are handled in one place.
+- **Debounced search:** waits 400 ms instead of sending a request on every keystroke.
+- **TypeScript:** every API response type is defined.
 
 ---
 
-## Klasör Yapısı
+## Project Structure
 
 ```
 task-manager/
@@ -157,12 +164,12 @@ task-manager/
 └── frontend/
     └── src/
         ├── app/                    # Next.js App Router pages
-        │   ├── page.tsx            # Ana görev sayfası
+        │   ├── page.tsx            # Main task page
         │   ├── login/page.tsx
         │   ├── register/page.tsx
         │   ├── layout.tsx
         │   └── providers.tsx
-        ├── components/             # UI bileşenleri
+        ├── components/             # UI components
         │   ├── TaskCard.tsx
         │   ├── TaskForm.tsx
         │   ├── TaskFiltersBar.tsx
