@@ -4,7 +4,6 @@
 
 A full-stack task management app: a **Laravel 11** REST API with token authentication and a **Next.js 14** (App Router) frontend.
 
-<!-- Add a screenshot or GIF here, for example: ![Task Manager](docs/screenshot.png) -->
 
 ---
 
@@ -36,6 +35,16 @@ A full-stack task management app: a **Laravel 11** REST API with token authentic
 ---
 
 ---
+
+## Screenshots
+
+The app running locally (Laravel API + Next.js), with demo data.
+
+| Login | Task list |
+|---|---|
+| ![Login](docs/screenshots/giris.jpg) | ![Task list](docs/screenshots/gorev-listesi.jpg) |
+
+![New task modal](docs/screenshots/yeni-gorev.jpg)
 
 ## Security & reliability
 
