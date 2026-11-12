@@ -1,0 +1,5 @@
+# Laravel iskelet/yapılandırma dosyaları dil istatistiğine dahil edilmez (proje koduna ait değildir).
+backend/config/** linguist-vendored
+backend/bootstrap/** linguist-vendored
+backend/public/index.php linguist-vendored
+backend/routes/console.php linguist-vendored
