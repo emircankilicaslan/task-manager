@@ -20,11 +20,17 @@ class Task extends Model
         'due_date',
     ];
 
+    // Veritabanı varsayılanıyla uyumlu; oluşturma yanıtında status null dönmesini önler.
+    protected $attributes = [
+        'status' => 'todo',
+    ];
+
     protected $casts = [
         'due_date' => 'date',
     ];
 
     const STATUSES = ['todo', 'in_progress', 'done'];
+
     const PRIORITIES = ['low', 'medium', 'high'];
 
     public function user(): BelongsTo
@@ -36,6 +42,10 @@ class Task extends Model
     {
         $query->when($filters['status'] ?? null, fn ($q, $v) => $q->where('status', $v));
         $query->when($filters['priority'] ?? null, fn ($q, $v) => $q->where('priority', $v));
-        $query->when($filters['search'] ?? null, fn ($q, $v) => $q->where('title', 'like', "%{$v}%"));
+        // LIKE joker karakterleri (%, _) kullanıcı girdisinde literal sayılır; ESCAPE '!' tüm veritabanlarında çalışır.
+        $query->when($filters['search'] ?? null, function ($q, $v) {
+            $escaped = str_replace(['!', '%', '_'], ['!!', '!%', '!_'], $v);
+            $q->whereRaw("title LIKE ? ESCAPE '!'", ["%{$escaped}%"]);
+        });
     }
 }

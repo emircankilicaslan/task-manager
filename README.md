@@ -1,5 +1,7 @@
 # Task Manager
 
+![CI](https://github.com/emircankilicaslan/task-manager/actions/workflows/ci.yml/badge.svg)
+
 A full-stack task management app: a **Laravel 11** REST API with token authentication and a **Next.js 14** (App Router) frontend.
 
 <!-- Add a screenshot or GIF here, for example: ![Task Manager](docs/screenshot.png) -->
@@ -32,6 +34,35 @@ A full-stack task management app: a **Laravel 11** REST API with token authentic
 - Tailwind CSS
 
 ---
+
+---
+
+## Security & reliability
+
+- **Authorization:** every task route is scoped to the token's user; other users' tasks return `403` (policies), soft-deleted tasks return `404`.
+- **Mass assignment:** `user_id` in a request body can never assign a task to someone else.
+- **Tokens expire:** Sanctum tokens are valid for 7 days by default (`SANCTUM_TOKEN_EXPIRATION`, minutes) and are revoked on logout.
+- **Brute force:** `register` / `login` are throttled to 10 requests per minute per IP.
+- **Input validation:** filters are validated (invalid or array values return `422`, not `500`); the title search treats `%` and `_` literally.
+- **CORS:** only the origin(s) in `FRONTEND_URL` are allowed (`config/cors.php`).
+- **Frontend session:** the API token lives in `localStorage`; a non-secret `session=1` cookie only drives page redirects in the Next.js middleware. Real authorization always happens in the API.
+
+## Tests & CI
+
+```bash
+# Backend (SQLite in-memory, 22 feature tests)
+cd backend && composer install && cp .env.example .env && php artisan key:generate
+vendor/bin/phpunit
+vendor/bin/pint --test
+
+# Frontend (Vitest, 11 tests)
+cd frontend && npm install
+npm run lint && npm run type-check && npm test && npm run build
+```
+
+GitHub Actions runs Pint, PHPUnit, ESLint, type-check, Vitest and the production build on every push and pull request.
+
+> Quick start without MySQL: set `DB_CONNECTION=sqlite` (and remove the other `DB_*` lines) in `backend/.env`, run `touch database/database.sqlite`, then `php artisan migrate`.
 
 ## Getting Started
 

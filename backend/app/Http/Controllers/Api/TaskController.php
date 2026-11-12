@@ -10,14 +10,21 @@ use App\Models\Task;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Validation\Rule;
 
 class TaskController extends Controller
 {
     public function index(Request $request): AnonymousResourceCollection
     {
+        $filters = $request->validate([
+            'status' => ['sometimes', Rule::in(Task::STATUSES)],
+            'priority' => ['sometimes', Rule::in(Task::PRIORITIES)],
+            'search' => ['sometimes', 'string', 'max:100'],
+        ]);
+
         $tasks = $request->user()
             ->tasks()
-            ->filter($request->only(['status', 'priority', 'search']))
+            ->filter($filters)
             ->latest()
             ->paginate(15);
 
@@ -61,7 +68,7 @@ class TaskController extends Controller
         $this->authorize('update', $task);
 
         $request->validate([
-            'status' => ['required', 'in:' . implode(',', Task::STATUSES)],
+            'status' => ['required', 'in:'.implode(',', Task::STATUSES)],
         ]);
 
         $task->update(['status' => $request->status]);

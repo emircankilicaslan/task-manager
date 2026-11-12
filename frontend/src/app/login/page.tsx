@@ -35,7 +35,7 @@ export default function LoginPage() {
             </svg>
           </div>
           <h1 className="text-xl font-bold text-gray-900">Giriş Yap</h1>
-          <p className="text-sm text-gray-500 mt-1">TaskManager'a hoş geldiniz</p>
+          <p className="text-sm text-gray-500 mt-1">TaskManager&apos;a hoş geldiniz</p>
         </div>
 
         {loginMutation.isError && (

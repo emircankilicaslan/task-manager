@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import api from '@/lib/api';
+import { clearSession, saveSession } from '@/lib/session';
 import type { User } from '@/types';
 
 export function useMe() {
@@ -27,7 +28,7 @@ export function useLogin() {
       return data;
     },
     onSuccess: ({ token, user }) => {
-      localStorage.setItem('token', token);
+      saveSession(token);
       queryClient.setQueryData(['me'], user);
       router.push('/');
     },
@@ -52,7 +53,7 @@ export function useRegister() {
       return data;
     },
     onSuccess: ({ token, user }) => {
-      localStorage.setItem('token', token);
+      saveSession(token);
       queryClient.setQueryData(['me'], user);
       router.push('/');
     },
@@ -68,7 +69,7 @@ export function useLogout() {
       await api.post('/auth/logout');
     },
     onSettled: () => {
-      localStorage.removeItem('token');
+      clearSession();
       queryClient.clear();
       router.push('/login');
     },
