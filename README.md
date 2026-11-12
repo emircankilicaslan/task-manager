@@ -1,31 +1,32 @@
-# Task Manager
+# Task Manager – Görev Yönetimi Uygulaması
 
 ![CI](https://github.com/emircankilicaslan/task-manager/actions/workflows/ci.yml/badge.svg)
 
-A full-stack task management app: a **Laravel 11** REST API with token authentication and a **Next.js 14** (App Router) frontend.
+> **English summary:** A full-stack task manager: a Laravel 11 REST API with token authentication (Sanctum), policies and soft deletes, and a Next.js 14 (App Router) frontend with React Query. 22 backend and 11 frontend tests, CI on GitHub Actions.
 
-
----
-
-## Features
-
-- Register, log in and log out with token-based authentication (Laravel Sanctum)
-- Create, view, edit and delete tasks; update only the status through a dedicated endpoint
-- Filter tasks by status and priority, search by title (debounced) and browse a paginated list
-- Authorization through policies and recoverable deletes (soft deletes)
-- Protected routes on the frontend and a central redirect to the login page on `401` responses
+Token tabanlı kimlik doğrulamalı bir **Laravel 11** REST API'si ile **Next.js 14** (App Router) arayüzünden oluşan, uçtan uca bir görev yönetimi uygulaması.
 
 ---
 
-## Tech Stack
+## Özellikler
 
-**Backend**
+- Token tabanlı kimlik doğrulama (Laravel Sanctum) ile kayıt, giriş ve çıkış
+- Görev oluşturma, görüntüleme, düzenleme ve silme; yalnızca durumu güncelleyen ayrı bir uç nokta
+- Duruma ve önceliğe göre filtreleme, başlıkta arama (gecikmeli/debounce) ve sayfalı liste
+- Politikalar (policy) ile yetkilendirme ve geri alınabilir silme (soft delete)
+- Arayüzde korumalı sayfalar ve `401` yanıtında merkezi olarak giriş sayfasına yönlendirme
+
+---
+
+## Kullanılan Teknolojiler
+
+**Arka uç**
 - PHP 8.2 / Laravel 11
-- Laravel Sanctum (token-based auth)
+- Laravel Sanctum (token tabanlı kimlik doğrulama)
 - MySQL
-- Form Requests, API Resources, Policies, SoftDeletes
+- Form Request, API Resource, Policy, SoftDeletes
 
-**Frontend**
+**Ön yüz**
 - Next.js 14 (App Router)
 - TypeScript
 - TanStack React Query v5
@@ -34,155 +35,153 @@ A full-stack task management app: a **Laravel 11** REST API with token authentic
 
 ---
 
----
+## Ekran Görüntüleri
 
-## Screenshots
+Yerelde çalışan uygulama (Laravel API + Next.js), demo verisiyle.
 
-The app running locally (Laravel API + Next.js), with demo data.
-
-| Login | Task list |
+| Giriş | Görev listesi |
 |---|---|
-| ![Login](docs/screenshots/giris.jpg) | ![Task list](docs/screenshots/gorev-listesi.jpg) |
+| ![Giriş](docs/screenshots/giris.jpg) | ![Görev listesi](docs/screenshots/gorev-listesi.jpg) |
 
-![New task modal](docs/screenshots/yeni-gorev.jpg)
+![Yeni görev penceresi](docs/screenshots/yeni-gorev.jpg)
 
-## Security & reliability
+## Güvenlik ve dayanıklılık
 
-- **Authorization:** every task route is scoped to the token's user; other users' tasks return `403` (policies), soft-deleted tasks return `404`.
-- **Mass assignment:** `user_id` in a request body can never assign a task to someone else.
-- **Tokens expire:** Sanctum tokens are valid for 7 days by default (`SANCTUM_TOKEN_EXPIRATION`, minutes) and are revoked on logout.
-- **Brute force:** `register` / `login` are throttled to 10 requests per minute per IP.
-- **Input validation:** filters are validated (invalid or array values return `422`, not `500`); the title search treats `%` and `_` literally.
-- **CORS:** only the origin(s) in `FRONTEND_URL` are allowed (`config/cors.php`).
-- **Frontend session:** the API token lives in `localStorage`; a non-secret `session=1` cookie only drives page redirects in the Next.js middleware. Real authorization always happens in the API.
+- **Yetkilendirme:** Her görev uç noktası token sahibi kullanıcıyla sınırlıdır; başkasının görevi `403` (policy), silinmiş görev `404` döner.
+- **Toplu atama (mass assignment):** İstek gövdesindeki `user_id`, bir görevi başka birine atayamaz.
+- **Token süresi:** Sanctum token'ları varsayılan olarak 7 gün geçerlidir (`SANCTUM_TOKEN_EXPIRATION`, dakika cinsinden) ve çıkışta iptal edilir.
+- **Kaba kuvvet koruması:** `register` / `login`, IP başına dakikada 10 istekle sınırlıdır.
+- **Girdi doğrulama:** Filtreler doğrulanır (geçersiz ya da dizi değerler `500` yerine `422` döner); başlık aramasında `%` ve `_` karakterleri harfi harfine aranır.
+- **CORS:** Yalnızca `FRONTEND_URL` içindeki adreslere izin verilir (`config/cors.php`).
+- **Arayüz oturumu:** API token'ı `localStorage`'da tutulur; gizli olmayan `session=1` çerezi yalnızca Next.js middleware'indeki sayfa yönlendirmesini yönetir. Gerçek yetkilendirme her zaman API'de yapılır.
 
-## Tests & CI
+## Test ve CI
 
 ```bash
-# Backend (SQLite in-memory, 22 feature tests)
+# Arka uç (bellek içi SQLite, 22 özellik testi)
 cd backend && composer install && cp .env.example .env && php artisan key:generate
 vendor/bin/phpunit
 vendor/bin/pint --test
 
-# Frontend (Vitest, 11 tests)
+# Ön yüz (Vitest, 11 test)
 cd frontend && npm install
 npm run lint && npm run type-check && npm test && npm run build
 ```
 
-GitHub Actions runs Pint, PHPUnit, ESLint, type-check, Vitest and the production build on every push and pull request.
+GitHub Actions her push ve pull request'te Pint, PHPUnit, ESLint, tip denetimi, Vitest ve üretim derlemesini çalıştırır.
 
-> Quick start without MySQL: set `DB_CONNECTION=sqlite` (and remove the other `DB_*` lines) in `backend/.env`, run `touch database/database.sqlite`, then `php artisan migrate`.
+> MySQL olmadan hızlı başlangıç: `backend/.env` içinde `DB_CONNECTION=sqlite` yapın (diğer `DB_*` satırlarını silin), `touch database/database.sqlite` çalıştırın, ardından `php artisan migrate`.
 
-## Getting Started
+## Başlarken
 
-### Prerequisites
+### Gereksinimler
 
-- PHP >= 8.2 and Composer
-- Node.js >= 18 and npm
+- PHP >= 8.2 ve Composer
+- Node.js >= 18 ve npm
 - MySQL
 
-### Backend (Laravel)
+### Arka uç (Laravel)
 
 ```bash
 cd backend
 
-# Install dependencies
+# Bağımlılıkları yükle
 composer install
 
-# Create the environment file
+# Ortam dosyasını oluştur
 cp .env.example .env
 php artisan key:generate
 
-# Update the database settings in .env:
+# .env içindeki veritabanı ayarlarını güncelle:
 # DB_DATABASE=task_manager
 # DB_USERNAME=root
 # DB_PASSWORD=
 
-# Create the database, then run the migrations
+# Veritabanını oluşturduktan sonra migrasyonları çalıştır
 php artisan migrate
 
-# (Optional) Load demo data
+# (İsteğe bağlı) Demo verisini yükle
 php artisan db:seed
 
-# Check the stateful domains in config/sanctum.php for CORS, then start the server
+# CORS için config/sanctum.php içindeki stateful alan adlarını kontrol edip sunucuyu başlat
 php artisan serve
 ```
 
-The API runs at `http://localhost:8000`.
-Demo account (after seeding): `demo@example.com` / `password`
+API `http://localhost:8000` adresinde çalışır.
+Demo hesap (seed sonrası): `demo@example.com` / `password`
 
-### Frontend (Next.js)
+### Ön yüz (Next.js)
 
 ```bash
 cd frontend
 
-# Install dependencies
+# Bağımlılıkları yükle
 npm install
 
-# Create the environment file
+# Ortam dosyasını oluştur
 cp .env.example .env.local
 
-# Start the development server
+# Geliştirme sunucusunu başlat
 npm run dev
 ```
 
-The app runs at `http://localhost:3000`.
+Uygulama `http://localhost:3000` adresinde çalışır.
 
 ---
 
-## API Reference
+## API Başvurusu
 
-### Auth
+### Kimlik doğrulama
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/auth/register` | Register |
-| POST | `/api/auth/login` | Log in |
-| POST | `/api/auth/logout` | Log out (auth required) |
-| GET | `/api/auth/me` | Current user (auth required) |
+| Yöntem | Uç nokta | Açıklama |
+|--------|----------|----------|
+| POST | `/api/auth/register` | Kayıt ol |
+| POST | `/api/auth/login` | Giriş yap |
+| POST | `/api/auth/logout` | Çıkış yap (giriş gerekir) |
+| GET | `/api/auth/me` | Geçerli kullanıcı (giriş gerekir) |
 
-### Tasks (auth required)
+### Görevler (giriş gerekir)
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/tasks` | List tasks (filterable, paginated) |
-| POST | `/api/tasks` | Create a task |
-| GET | `/api/tasks/{id}` | Task details |
-| PUT | `/api/tasks/{id}` | Update a task |
-| DELETE | `/api/tasks/{id}` | Delete a task |
-| PATCH | `/api/tasks/{id}/status` | Update the status only |
+| Yöntem | Uç nokta | Açıklama |
+|--------|----------|----------|
+| GET | `/api/tasks` | Görevleri listele (filtrelenebilir, sayfalı) |
+| POST | `/api/tasks` | Görev oluştur |
+| GET | `/api/tasks/{id}` | Görev ayrıntısı |
+| PUT | `/api/tasks/{id}` | Görevi güncelle |
+| DELETE | `/api/tasks/{id}` | Görevi sil |
+| PATCH | `/api/tasks/{id}/status` | Yalnızca durumu güncelle |
 
-**Query parameters (`GET /api/tasks`):**
+**Sorgu parametreleri (`GET /api/tasks`):**
 
-| Parameter | Values | Description |
-|-----------|--------|-------------|
-| `status` | `todo`, `in_progress`, `done` | Filter by status |
-| `priority` | `low`, `medium`, `high` | Filter by priority |
-| `search` | string | Search in the title |
-| `page` | integer | Page number |
-
----
-
-## Architecture Decisions
-
-**Backend**
-- **Form Requests:** keep controllers thin; validation lives in its own layer.
-- **API Resources:** the response format is controlled in one place and isolated from model changes.
-- **Policies:** authorization logic stays outside the controllers, with a separate policy per resource.
-- **Query scope filtering:** the model exposes a reusable query-builder filter instead of repeating conditions.
-- **SoftDeletes:** records are deleted without data loss and can be recovered.
-
-**Frontend**
-- **React Query:** server-state caching and automatic refetching.
-- **React Hook Form:** uncontrolled inputs with validation, for better form performance.
-- **Custom hooks:** `useTasks` and `useAuth` keep API logic out of the components.
-- **Axios interceptors:** token attachment and the `401` redirect are handled in one place.
-- **Debounced search:** waits 400 ms instead of sending a request on every keystroke.
-- **TypeScript:** every API response type is defined.
+| Parametre | Değerler | Açıklama |
+|-----------|----------|----------|
+| `status` | `todo`, `in_progress`, `done` | Duruma göre filtrele |
+| `priority` | `low`, `medium`, `high` | Önceliğe göre filtrele |
+| `search` | metin | Başlıkta ara |
+| `page` | tam sayı | Sayfa numarası |
 
 ---
 
-## Project Structure
+## Mimari Kararlar
+
+**Arka uç**
+- **Form Request:** Controller'lar ince kalır; doğrulama kendi katmanındadır.
+- **API Resource:** Yanıt biçimi tek yerden yönetilir ve model değişikliklerinden yalıtılır.
+- **Policy:** Yetkilendirme mantığı controller dışında, kaynak başına ayrı bir politikada tutulur.
+- **Sorgu kapsamıyla (scope) filtreleme:** Model, koşulları tekrar etmek yerine yeniden kullanılabilir bir sorgu filtresi sunar.
+- **SoftDeletes:** Kayıtlar veri kaybı olmadan silinir ve geri alınabilir.
+
+**Ön yüz**
+- **React Query:** Sunucu durumunun önbelleğe alınması ve otomatik yeniden çekilmesi.
+- **React Hook Form:** Doğrulamalı, kontrolsüz girdilerle daha iyi form performansı.
+- **Özel hook'lar:** `useTasks` ve `useAuth`, API mantığını bileşenlerden ayırır.
+- **Axios interceptor'ları:** Token ekleme ve `401` yönlendirmesi tek yerden yönetilir.
+- **Gecikmeli (debounce) arama:** Her tuş vuruşunda istek göndermek yerine 400 ms bekler.
+- **TypeScript:** Her API yanıtının tipi tanımlıdır.
+
+---
+
+## Proje Yapısı
 
 ```
 task-manager/
@@ -190,8 +189,8 @@ task-manager/
 │   ├── app/
 │   │   ├── Http/
 │   │   │   ├── Controllers/Api/    # TaskController, AuthController
-│   │   │   ├── Requests/           # Form request validation
-│   │   │   └── Resources/          # API resource transformers
+│   │   │   ├── Requests/           # Form request doğrulamaları
+│   │   │   └── Resources/          # API resource dönüştürücüleri
 │   │   ├── Models/                 # Task, User
 │   │   └── Policies/               # TaskPolicy
 │   ├── database/
@@ -203,25 +202,25 @@ task-manager/
 │
 └── frontend/
     └── src/
-        ├── app/                    # Next.js App Router pages
-        │   ├── page.tsx            # Main task page
+        ├── app/                    # Next.js App Router sayfaları
+        │   ├── page.tsx            # Ana görev sayfası
         │   ├── login/page.tsx
         │   ├── register/page.tsx
         │   ├── layout.tsx
         │   └── providers.tsx
-        ├── components/             # UI components
+        ├── components/             # Arayüz bileşenleri
         │   ├── TaskCard.tsx
         │   ├── TaskForm.tsx
         │   ├── TaskFiltersBar.tsx
         │   ├── Modal.tsx
         │   └── Pagination.tsx
-        ├── hooks/                  # React Query hooks
+        ├── hooks/                  # React Query hook'ları
         │   ├── useTasks.ts
         │   └── useAuth.ts
         ├── lib/
-        │   ├── api.ts              # Axios instance
+        │   ├── api.ts              # Axios örneği
         │   └── utils.ts
         ├── types/
         │   └── index.ts
-        └── middleware.ts           # Route protection
+        └── middleware.ts           # Rota koruması
 ```
