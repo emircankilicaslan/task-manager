@@ -1,6 +1,6 @@
 # Task Manager – Görev Yönetimi Uygulaması
 
-![CI](https://github.com/emircankilicaslan/task-manager/actions/workflows/ci.yml/badge.svg)
+![CI](https://github.com/emircankilicaslan/task-manager/actions/workflows/ci.yml/badge.svg) ![Lisans: MIT](https://img.shields.io/badge/Lisans-MIT-green.svg)
 
 > **English summary:** A full-stack task manager: a Laravel 11 REST API with token authentication (Sanctum), policies and soft deletes, and a Next.js 14 (App Router) frontend with React Query. 22 backend and 11 frontend tests, CI on GitHub Actions.
 
@@ -224,3 +224,7 @@ task-manager/
         │   └── index.ts
         └── middleware.ts           # Rota koruması
 ```
+
+## Lisans
+
+Bu proje [MIT Lisansı](LICENSE) ile paylaşılmaktadır.
